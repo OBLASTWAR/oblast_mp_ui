@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Civ5Package>
+	<GUID>{A1B2C3D6-E5F6-7890-ABCD-EF1234567892}</GUID>
+	<Version>1</Version>
+	<Priority>260</Priority>
+	<PTags>
+		<Tag>Version</Tag>
+	</PTags>
+	<Name>
+		<Value language="en_US">Oblast Multiplayer UI (Expansion2)</Value>
+	</Name>
+	<Description>
+		<Value language="en_US">Multiplayer loading screen network status panel - Expansion2 skin.</Value>
+	</Description>
+
+	<UISkin name="Expansion2Primary" set="Expansion2" platform="Common">
+		<Skin>
+			<Directory>GameSetup</Directory>
+		</Skin>
+	</UISkin>
+
+</Civ5Package>

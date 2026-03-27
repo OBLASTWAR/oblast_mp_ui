@@ -1,0 +1,12 @@
+# IntelliJ
+.idea/
+
+# Claude
+.claude/
+
+# Local deploy script (contains machine-specific paths)
+deploy.sh
+
+# OS
+*.DS_Store
+Thumbs.db

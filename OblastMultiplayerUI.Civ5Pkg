@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Civ5Package>
+	<GUID>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</GUID>
+	<Version>1</Version>
+	<Priority>060</Priority>
+	<PTags>
+		<Tag>Version</Tag>
+	</PTags>
+	<Name>
+		<Value language="en_US">Oblast Multiplayer UI</Value>
+	</Name>
+	<Description>
+		<Value language="en_US">Multiplayer lobby improvements: restores Steam friends, favorites, and history game list filters.</Value>
+	</Description>
+
+	<UISkin name="BaseGame" set="BaseGame" platform="Common">
+		<Skin>
+			<Directory>FrontEnd</Directory>
+			<Directory>GameSetup</Directory>
+		</Skin>
+	</UISkin>
+
+</Civ5Package>

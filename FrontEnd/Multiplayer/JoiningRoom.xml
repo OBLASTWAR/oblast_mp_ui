@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context>
+
+  <Grid Size="960,Full" Anchor="C,B" Offset="0,-39" Padding="0,0" Style="Grid9DetailFive140" ID="MainGrid">
+
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+    <Box Style="MenuTopTreatment"/>
+    <Box Style="MenuBottomTreatment"/>
+
+    <Label Style="MenuTitleCaption" ID="JoiningLabel"/>
+    <Image Anchor="C,T" Offset="0,52" Texture="HorizontalTrim.dds" Size="926.5"/>
+
+    <ScrollPanel ID="JoinStatusScroll" Anchor="C,T" Offset="0,62" Size="880,500" Vertical="1" AutoScrollBar="0">
+      <Stack ID="JoinStatusStack" StackGrowth="B" Anchor="L,T"/>
+    </ScrollPanel>
+
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="926.5"/>
+
+    <GridButton ID="CancelButton" Style="SmallButton2" Anchor="C,B" Offset="0,72" Size="200,32">
+      <Label ID="CancelButtonText" Anchor="C,C" String="Cancel" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+    </GridButton>
+  </Grid>
+
+  <!-- Child Screens -->
+  <LuaContext FileName="Assets/UI/FrontEnd/Multiplayer/StagingRoom" ID="StagingRoomScreen" DeferLoad="1" Hidden="1"/>
+
+  <Instance Name="JoinStatusEntry">
+    <Label ID="EntryLabel" Anchor="L,T" Offset="20,10" WrapWidth="840" ColorSet="Beige_Black_Alpha" Font="TwCenMT20" FontStyle="Shadow" String=""/>
+  </Instance>
+
+</Context>
