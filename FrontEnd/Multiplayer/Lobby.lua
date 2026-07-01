@@ -49,7 +49,7 @@ g_SelectedServerID = nil;
 g_Listings = {};
 
 local g_AutoRefreshEnabled = true;
-local g_AutoRefreshSeconds = 3;
+local g_AutoRefreshSeconds = 10;
 local g_AutoRefreshTimer = 0;
 local g_ScreenVisible = false;
 
@@ -217,6 +217,38 @@ ContextPtr:SetInputHandler( InputHandler );
 -------------------------------------------------
 local g_AutoRefreshIntervalOptions = { 3, 5, 10, 30, 60 };
 
+local AUTOREFRESH_SAVE_KEY_ENABLED = "OblastMP_AutoRefreshEnabled";
+local AUTOREFRESH_SAVE_KEY_SECONDS = "OblastMP_AutoRefreshSeconds";
+
+-- Persist the auto-refresh settings to the user's options DB so they survive
+-- closing the lobby / restarting the game.
+function SaveAutoRefreshSettings()
+	Options.SetUserData( AUTOREFRESH_SAVE_KEY_ENABLED, g_AutoRefreshEnabled and 1 or 0 );
+	Options.SetUserData( AUTOREFRESH_SAVE_KEY_SECONDS, g_AutoRefreshSeconds );
+	Options.SaveOptions();
+end
+
+-- Load saved settings, falling back to the hardcoded defaults when nothing has
+-- been saved yet. A saved interval is only accepted if it is still one of the
+-- offered options, so a stale value can't desync the pulldown.
+function LoadAutoRefreshSettings()
+	local enabled = Options.GetUserData( AUTOREFRESH_SAVE_KEY_ENABLED );
+	if enabled ~= nil then
+		g_AutoRefreshEnabled = ( tonumber( enabled ) ~= 0 );
+	end
+
+	local secs = tonumber( Options.GetUserData( AUTOREFRESH_SAVE_KEY_SECONDS ) );
+	if secs ~= nil then
+		for _, v in ipairs( g_AutoRefreshIntervalOptions ) do
+			if v == secs then
+				g_AutoRefreshSeconds = secs;
+				break;
+			end
+		end
+	end
+end
+LoadAutoRefreshSettings();
+
 
 function PopulateAutoRefreshControls()
 	local label = g_AutoRefreshEnabled and "Auto-Refresh: ON" or "Auto-Refresh: OFF";
@@ -240,6 +272,7 @@ function OnAutoRefreshToggle()
 	g_AutoRefreshEnabled = not g_AutoRefreshEnabled;
 	g_AutoRefreshTimer = 0;
 	Controls.AutoRefreshButtonLabel:SetText( g_AutoRefreshEnabled and "Auto-Refresh: ON" or "Auto-Refresh: OFF" );
+	SaveAutoRefreshSettings();
 end
 Controls.AutoRefreshButton:RegisterCallback( Mouse.eLClick, OnAutoRefreshToggle );
 
@@ -247,6 +280,7 @@ function OnAutoRefreshIntervalPull( id )
 	g_AutoRefreshSeconds = g_AutoRefreshIntervalOptions[id];
 	g_AutoRefreshTimer = 0;
 	Controls.AutoRefreshIntervalLabel:SetText( g_AutoRefreshSeconds .. "s" );
+	SaveAutoRefreshSettings();
 end
 Controls.AutoRefreshIntervalPulldown:RegisterSelectionCallback( OnAutoRefreshIntervalPull );
 
