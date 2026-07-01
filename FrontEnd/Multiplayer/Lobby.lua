@@ -217,27 +217,32 @@ ContextPtr:SetInputHandler( InputHandler );
 -------------------------------------------------
 local g_AutoRefreshIntervalOptions = { 3, 5, 10, 30, 60 };
 
-local AUTOREFRESH_SAVE_KEY_ENABLED = "OblastMP_AutoRefreshEnabled";
-local AUTOREFRESH_SAVE_KEY_SECONDS = "OblastMP_AutoRefreshSeconds";
+-- Persistent user-data store (survives closing the lobby / restarting the game).
+-- Uses the same Modding.OpenUserData mechanism the base game and EUI use for
+-- frontend options. Values are stored as integers.
+local g_AutoRefreshUserData = Modding.OpenUserData( "OblastMP Options", 1 );
 
--- Persist the auto-refresh settings to the user's options DB so they survive
--- closing the lobby / restarting the game.
+-- Persist the current auto-refresh settings. SetValue writes through to the
+-- user-data store, so no explicit commit is needed.
 function SaveAutoRefreshSettings()
-	Options.SetUserData( AUTOREFRESH_SAVE_KEY_ENABLED, g_AutoRefreshEnabled and 1 or 0 );
-	Options.SetUserData( AUTOREFRESH_SAVE_KEY_SECONDS, g_AutoRefreshSeconds );
-	Options.SaveOptions();
+	if g_AutoRefreshUserData == nil then return; end
+	g_AutoRefreshUserData.SetValue( "AutoRefreshEnabled", g_AutoRefreshEnabled and 1 or 0 );
+	g_AutoRefreshUserData.SetValue( "AutoRefreshSeconds", g_AutoRefreshSeconds );
 end
 
 -- Load saved settings, falling back to the hardcoded defaults when nothing has
--- been saved yet. A saved interval is only accepted if it is still one of the
--- offered options, so a stale value can't desync the pulldown.
+-- been saved yet. GetValue returns nil for a key that has never been written.
+-- A saved interval is only accepted if it is still one of the offered options,
+-- so a stale value can't desync the pulldown.
 function LoadAutoRefreshSettings()
-	local enabled = Options.GetUserData( AUTOREFRESH_SAVE_KEY_ENABLED );
+	if g_AutoRefreshUserData == nil then return; end
+
+	local enabled = g_AutoRefreshUserData.GetValue( "AutoRefreshEnabled" );
 	if enabled ~= nil then
-		g_AutoRefreshEnabled = ( tonumber( enabled ) ~= 0 );
+		g_AutoRefreshEnabled = ( enabled ~= 0 );
 	end
 
-	local secs = tonumber( Options.GetUserData( AUTOREFRESH_SAVE_KEY_SECONDS ) );
+	local secs = g_AutoRefreshUserData.GetValue( "AutoRefreshSeconds" );
 	if secs ~= nil then
 		for _, v in ipairs( g_AutoRefreshIntervalOptions ) do
 			if v == secs then
