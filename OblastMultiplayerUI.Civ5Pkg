@@ -10,13 +10,14 @@
 		<Value language="en_US">Oblast Multiplayer UI</Value>
 	</Name>
 	<Description>
-		<Value language="en_US">Multiplayer lobby improvements: restores Steam friends, favorites, and history game list filters.</Value>
+		<Value language="en_US">Multiplayer lobby improvements: restores Steam friends, favorites, and history game list filters. Network status on the loading screen and in game: who is connected, joining or lagging, and who a stuck load or turn is waiting on.</Value>
 	</Description>
 
 	<UISkin name="BaseGame" set="BaseGame" platform="Common">
 		<Skin>
 			<Directory>FrontEnd</Directory>
 			<Directory>GameSetup</Directory>
+			<Directory>InGame</Directory>
 		</Skin>
 	</UISkin>
 

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
 <Context>
 	<!-- NEED TO HIDE-->
 
@@ -41,19 +42,23 @@
 		</Stack>
 	</Box>
 
-	<!-- MP status log entry instance -->
-	<Instance Name="MPStatusEntry">
-		<Label ID="EntryLabel" Anchor="L,T" Offset="4,2" WrapWidth="256" ColorSet="Beige_Black_Alpha" Font="TwCenMT14" FontStyle="Shadow" String=""/>
+	<!-- oblast_mp_ui: multiplayer network status (OblastNetLoad.lua), over the Dawn of Man image -->
+	<Instance Name="OblastNetRow">
+		<Label ID="Text" Anchor="L,T" WrapWidth="416" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
 	</Instance>
-
-	<!-- Multiplayer network status panel (shown on left side, over Dawn of Man image) -->
-	<Box ID="MPStatusBox" Anchor="L,B" Size="280,340" Offset="16,16" Color="0,0,0,180" Hidden="1">
-		<Grid Anchor="C,C" Size="280,340" Style="Grid9Frame"/>
+	<Box ID="OblastNetBox" Anchor="L,B" Offset="16,16" Size="440,320" Color="Black.200" Hidden="1">
+		<Grid Anchor="C,C" Size="440,320" Style="Grid9Frame"/>
 		<Label Anchor="C,T" Offset="0,8" String="Network Status" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-		<Image Anchor="C,T" Offset="0,32" Texture="bar340x2.dds" Size="256.1"/>
-		<ScrollPanel ID="MPStatusScroll" Anchor="C,B" Offset="0,6" Size="264,292" Vertical="1" AutoScrollBar="0">
-			<Stack ID="MPStatusStack" StackGrowth="B" Anchor="L,T"/>
-		</ScrollPanel>
+		<Image Anchor="C,T" Offset="0,32" Texture="bar340x2.dds" Size="416.1"/>
+		<Stack Anchor="L,T" Offset="12,40" StackGrowth="Bottom" Padding="6">
+			<Label ID="OblastNetHeader" Anchor="L,T" WrapWidth="416" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
+			<Stack ID="OblastNetStack" Anchor="L,T" StackGrowth="Bottom" Padding="2"/>
+			<Image Anchor="L,T" Texture="bar340x2.dds" Size="416.1"/>
+			<Label ID="OblastNetEvents" Anchor="L,T" WrapWidth="416" LeadingOffset="-2" ColorSet="Beige_Black_Alpha" Font="TwCenMT14" FontStyle="Shadow"/>
+		</Stack>
+		<GridButton ID="OblastNetChat" Style="SmallButton2" Anchor="C,B" Offset="0,10" Size="220,30" Hidden="1" ToolTip="Send this status to everyone's chat so the host knows who is holding the game up">
+			<Label Anchor="C,C" String="Post status to chat" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
+		</GridButton>
 	</Box>
 
 	<Instance Name="IconInstance" >

@@ -10,12 +10,13 @@
 		<Value language="en_US">Oblast Multiplayer UI (Expansion1)</Value>
 	</Name>
 	<Description>
-		<Value language="en_US">Multiplayer loading screen network status panel - Expansion1 skin.</Value>
+		<Value language="en_US">Multiplayer network status (loading screen and in game) - Expansion1 skin.</Value>
 	</Description>
 
 	<UISkin name="Expansion1Primary" set="Expansion1" platform="Common">
 		<Skin>
 			<Directory>GameSetup</Directory>
+			<Directory>InGame</Directory>
 		</Skin>
 	</UISkin>
 

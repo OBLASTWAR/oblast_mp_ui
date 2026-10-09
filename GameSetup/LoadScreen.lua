@@ -1,122 +1,24 @@
 -------------------------------------------------
 -- Game Loading Screen
 -- modified by bc1 from 1.0.3.144 code
--- oblast_multiplayer_ui: added MP network status panel
 -------------------------------------------------
-include( "IconSupport" )
+include( "EUI_utilities" )
+local IconHookup = EUI.IconHookup
+local CivIconHookup = EUI.CivIconHookup
+local SimpleCivIconHookup = EUI.SimpleCivIconHookup
 include( "PopulateUniques" )
 local InitializePopulateUniques = InitializePopulateUniques
 local PopulateUniquesForGameLoad = PopulateUniquesForGameLoad
 local math_min = math.min
 local math_max = math.max
-include( "InstanceManager" )
+include( "OblastNetLoad" ) -- oblast_mp_ui: MP network status panel
 
 local g_civID = -1;
 local g_isLoadComplete = false;
 
--------------------------------------------------
--- MP Status Panel
--------------------------------------------------
-local g_mpStatusIM = InstanceManager:new( "MPStatusEntry", "EntryLabel", Controls.MPStatusStack );
-local g_prevPlayerConnected = {};
-
-function AddLogLine( text )
-	local ct = g_mpStatusIM:GetInstance();
-	ct.EntryLabel:SetText( text );
-	Controls.MPStatusStack:CalculateSize();
-	Controls.MPStatusStack:ReprocessAnchoring();
-	Controls.MPStatusScroll:CalculateInternalSize();
-	Controls.MPStatusScroll:SetScrollValue( 1 );
-end
-
-function GetPlayerLine( i )
-	local name = PreGame.GetNickName( i );
-	if not name or name == "" then name = "Player " .. (i + 1); end
-	if Network.IsPlayerHotJoining( i ) then
-		return name .. ":  resyncing...";
-	elseif Network.IsPlayerConnected( i ) then
-		local ping = Network.GetPingTime( i );
-		if ping and ping > 0 then
-			return name .. ":  connected (" .. ping .. "ms)";
-		end
-		return name .. ":  connected";
-	else
-		return name .. ":  waiting...";
-	end
-end
-
-function InitMPStatus()
-	if not PreGame.IsMultiplayerGame() then return; end
-	Controls.MPStatusBox:SetHide( false );
-	g_mpStatusIM:ResetInstances();
-	g_prevPlayerConnected = {};
-
-	for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
-		if PreGame.GetSlotStatus( i ) == SlotStatus.SS_TAKEN then
-			g_prevPlayerConnected[i] = Network.IsPlayerConnected( i );
-			AddLogLine( GetPlayerLine( i ) );
-		end
-	end
-	AddLogLine( "---" );
-end
-
-function ResetMPStatus()
-	Controls.MPStatusBox:SetHide( true );
-	g_mpStatusIM:ResetInstances();
-	g_prevPlayerConnected = {};
-end
-
-function OnMPPlayerUpdated()
-	for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
-		if PreGame.GetSlotStatus( i ) == SlotStatus.SS_TAKEN then
-			local connected = Network.IsPlayerConnected( i );
-			if g_prevPlayerConnected[i] ~= connected then
-				g_prevPlayerConnected[i] = connected;
-				AddLogLine( GetPlayerLine( i ) );
-			end
-		end
-	end
-end
-Events.MultiplayerGamePlayerUpdated.Add( OnMPPlayerUpdated );
-Events.MultiplayerGamePlayerDisconnected.Add( OnMPPlayerUpdated );
-
-Events.ConnectedToNetworkHost.Add( function()
-	AddLogLine( "> Connected to host" );
-end );
-
-Events.MultiplayerNetRegistered.Add( function()
-	AddLogLine( "> Network registered" );
-end );
-
-Events.MultiplayerConnectionComplete.Add( function()
-	AddLogLine( "> All players connected" );
-	OnMPPlayerUpdated();
-end );
-
-Events.MultiplayerHotJoinStarted.Add( function()
-	AddLogLine( "> Resyncing game state..." );
-	OnMPPlayerUpdated();
-end );
-
-Events.MultiplayerHotJoinCompleted.Add( function()
-	AddLogLine( "> Resync complete" );
-	OnMPPlayerUpdated();
-end );
-
-Events.MultiplayerGameAbandoned.Add( function()
-	AddLogLine( "> Session abandoned" );
-end );
-
-Events.MultiplayerConnectionFailed.Add( function()
-	AddLogLine( "> Connection failed" );
-end );
-
--------------------------------------------------
--- Base LoadScreen (EUI version)
--------------------------------------------------
 Controls.ProgressBar:SetPercent( 1 );
 
-ContextPtr:SetShowHideHandler(
+ContextPtr:SetShowHideHandler( 
 function( isHide, isInit )
 	if not isHide then
 		UI.SetDontShowPopups(true);
@@ -125,6 +27,7 @@ function( isHide, isInit )
 			g_isLoadComplete = false;
 
 			Controls.AlphaAnim:SetToBeginning();
+--			Controls.SlideAnim:SetToBeginning();
 			Controls.ActivateButton:SetHide(true);
 
 			-- Force some settings off when loading a HotSeat game.
@@ -138,29 +41,40 @@ function( isHide, isInit )
 			local civ = GameInfo.Civilizations[ PreGame.GetCivilization( Game:GetActivePlayer() ) ];
 			if civ then
 				g_civID = civ.ID;
+				-- Use the Civilization_Leaders table to cross reference from this civ to the Leaders table
 				local leader = GameInfo.Leaders[ GameInfo.Civilization_Leaders{ CivilizationType = civ.Type }().LeaderheadType ];
 
+				-- Set Leader & Civ Text
 				Controls.Civilization:LocalizeAndSetText( civ.Description );
 				Controls.Leader:LocalizeAndSetText( leader.Description );
+				-- Set Civ Leader Icon
+-- there is no Portrait!!!	IconHookup( leader.PortraitIndex, 128, leader.IconAtlas, Controls.Portrait );
 
+				-- Set Civ Icon
 				SimpleCivIconHookup( Game.GetActivePlayer(), 80, Controls.IconShadow );
 
+				-- Sets Trait bonus Text
 				local trait = GameInfo.Traits[ GameInfo.Leader_Traits{ LeaderType = leader.Type }().TraitType ];
 				Controls.BonusTitle:LocalizeAndSetText( trait.ShortDescription );
 				Controls.BonusDescription:LocalizeAndSetText( trait.Description );
 
+				-- Sets Bonus Icons
 				InitializePopulateUniques();
 				Controls.SubStack:DestroyAllChildren();
 				PopulateUniquesForGameLoad( Controls.SubStack, civ.Type );
 
+				-- Sets Dawn of Man Quote
 				Controls.Quote:LocalizeAndSetText( civ.DawnOfManQuote or "" );
 
+				-- Sets Dawn of Man Image
 				Controls.Image:SetTexture(civ.DawnOfManImage);
 				local x, y = UIManager:GetScreenSizeVal()
 				local a = math_min( x-500, y/0.75 )
 				local b = math_max( 500, x-a )
 				Controls.Image:Resize( a, 0.75*a )
 				Controls.Details:SetSizeX( b )
+--				Controls.BonusDescription:SetWrapWidth( b*0.9 )
+--				Controls.Quote:SetWrapWidth( b*0.9 )
 				Controls.Details:ReprocessAnchoring();
 			else
 				g_civID = -1;
@@ -169,31 +83,34 @@ function( isHide, isInit )
 			if g_civID ~= -1 then
 				Events.SerialEventDawnOfManShow(g_civID);
 			end
-
-			-- Initialize MP status panel
-			InitMPStatus();
+			OblastLoad.OnShow(); -- oblast_mp_ui
 		end
 	elseif not isInit then
 		UIManager:SetUICursor( 0 );
 		Controls.Image:UnloadTexture();
+		--print("Texture is unloaded");
 		if g_civID ~= -1 then
 			Events.SerialEventDawnOfManHide(g_civID);
 		end
-		ResetMPStatus();
+		OblastLoad.OnHide(); -- oblast_mp_ui
 	end
 end );
-
 -------------
 -- Start Game
 -------------
 local function OnActivateButtonClicked ()
+	--print("Activate button clicked!");
 	Events.LoadScreenClose();
 	if not PreGame.IsMultiplayerGame() and not PreGame.IsHotSeatGame() then
 		Game.SetPausePlayer( -1 );
 	end
+
 	UI.SetDontShowPopups( false );
+
+	--UI.SetNextGameState( GameStates.MainGameView, g_iAIPlayer );
 end
 Controls.ActivateButton:RegisterCallback( Mouse.eLClick, OnActivateButtonClicked );
+
 
 ----------------------
 -- Key Down Processing
@@ -210,20 +127,21 @@ function( uiMsg, wParam, lParam )
 end );
 
 ---------------------
--- Game Init Complete
+-- Game Init complete
 ---------------------
 Events.SequenceGameInitComplete.Add(
 function()
 	g_isLoadComplete = true;
+	OblastLoad.OnGameInitComplete(); -- oblast_mp_ui
 
 	if PreGame.IsMultiplayerGame() or PreGame.IsHotSeatGame() then
-		AddLogLine( "> Game loaded — launching" );
 		OnActivateButtonClicked();
 	else
 		Game.SetPausePlayer( Game.GetActivePlayer() );
 		Controls.ActivateButtonText:LocalizeAndSetText( UI:IsLoadedGame() and "TXT_KEY_BEGIN_GAME_BUTTON_CONTINUE" or "TXT_KEY_BEGIN_GAME_BUTTON" );
 		Controls.ActivateButton:SetHide(false);
 		Controls.AlphaAnim:Play();
+--		Controls.SlideAnim:Play();
 		UIManager:SetUICursor( 0 );
 	end
 end );
